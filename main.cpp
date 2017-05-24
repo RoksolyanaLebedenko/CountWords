@@ -54,8 +54,9 @@ int main () {
 
   string file;
   string line;
-  cout << "Please enter a path to file with words: ";
-  cin >> file;
+//  cout << "Please enter a path to file with words: ";
+//  cin >> file;
+  file = "/home/roksoliana/file.txt";
   auto open_start_time = get_current_time_fenced();
   ifstream myfile(file);
 
@@ -103,13 +104,16 @@ int main () {
   auto counting_end_time = get_current_time_fenced();
   cout << "\nOpening time: "<< to_us(open_end_time-open_start_time) / (double)(1000) << " ms\n" << endl;
   cout << "Counting time: "<< to_us(counting_end_time-counting_start_time) / (double)(1000) << " ms\n" << endl;
-
+  for(int i = 0; i < numOfThreads; i++){
+      threads[i].join();
+  }
   //===============================
 
   //------------Write to file by word------------------
   string wrFile1;
-  cout << "Please enter a path to file, where words will be sorted alphabetically: ";
-  cin >> wrFile1;
+//  cout << "Please enter a path to file, where words will be sorted alphabetically: ";
+//  cin >> wrFile1;
+  wrFile1 = "/home/roksoliana/fileout_by_word.txt";
   ofstream outmyfile;
   outmyfile.open(wrFile1);
   if (outmyfile.is_open()){
@@ -130,8 +134,9 @@ int main () {
     vector<pair<string, int> > mapcopy(myMap.begin(), myMap.end());
     sort(mapcopy.begin(), mapcopy.end(), less_second<string, int>());
     string wrFile2;
-    cout << "Please enter a path to file, where words will be sorted by number of each word: ";
-    cin >> wrFile2;
+//    cout << "Please enter a path to file, where words will be sorted by number of each word: ";
+//    cin >> wrFile2;
+    wrFile2 = "/home/roksoliana/fileout_by_number.txt";
     ofstream outmyfile2;
     outmyfile2.open (wrFile2);
     if (outmyfile2.is_open()){
