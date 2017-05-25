@@ -12,17 +12,22 @@ using namespace std;
 //-----Thread-------
 
 void createThread(const vector<string>& vector1, int start, int end,map<string, int>& myMap){
+    if(start > vector1.size()){
+        return;
+    }
+    if(start < vector1.size() && end > vector1.size()){
+        end = vector1.size();
+    }
     map<string, int> count_words;
     for (int i = start; i < end; i++){
         ++count_words[vector1[i]];
     }
-    mutex mutex1;
-    mutex1.lock();
+   lock_guard<mutex> ls(mutex1);
     for(auto const &word: count_words){
         myMap[word.first] += word.second;
     }
-    mutex1.unlock();
 }
+ 
 
 
 //realization of clock
@@ -53,7 +58,7 @@ int main () {
  //--------------------Open file------------------
 
   string file;
-  string line;
+  string word;
   cout << "Please enter a path to file with words: ";
   cin >> file;
   auto open_start_time = get_current_time_fenced();
@@ -63,9 +68,8 @@ int main () {
 
   if (myfile.is_open())
   {
-    while ( getline (myfile,line) )
-    {
-      vector1.push_back(line);
+    while (myfile >> word){
+      vector1.push_back(word);
     }
     myfile.close();
   }
@@ -82,13 +86,13 @@ int main () {
   int numOfThreads;
   cout << "Please enter a number of threads: ";
   cin >> numOfThreads;
-  if (numOfThreads % 2 != 0){
-      numOfThreads = numOfThreads + 1;
-  }
+
   thread threads[numOfThreads];
 
   int part = int(vector1.size()/numOfThreads);
-
+     if (vector1.size()%numOfThreads != 0){
+        part += 1;
+     }
   map<string, int> myMap;
   int start = 0;
   int end = part;
