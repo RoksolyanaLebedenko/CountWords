@@ -8,7 +8,7 @@
 #include <algorithm>
 
 using namespace std;
-
+mutex mutex1;
 //-----Thread-------
 
 void createThread(const vector<string>& vector1, int start, int end,map<string, int>& myMap){
