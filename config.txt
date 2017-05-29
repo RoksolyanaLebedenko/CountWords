@@ -1,0 +1,4 @@
+filewithwords=/home/roksoliana/file.txt
+writeByWords=/home/roksoliana/fileout_by_words.txt
+writeByNumber=/home/roksoliana/fileout_by_number.txt
+numOfthreads=2
