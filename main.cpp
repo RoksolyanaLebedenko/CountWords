@@ -27,7 +27,7 @@ void createThread(const vector<string>& vector1, int start, int end,map<string, 
         myMap[word.first] += word.second;
     }
 }
- 
+
 
 
 //realization of clock
@@ -53,16 +53,46 @@ struct less_second {
         return a.second < b.second;
     }
 };
+map<string, string> configm(string filename) {
+    string line;
+    ifstream myfile;
+    map<string, string> cmap;
+    myfile.open(filename);
+
+    if (myfile.is_open())
+    {
+        while (getline(myfile,line))
+        {
+            int pos = line.find("=");
+            string key = line.substr(0, pos);
+            string value = line.substr(pos + 1);
+            cmap[key] = value;
+        }
+
+        myfile.close();
+    }
+    else {
+        cout << "Error with opening the file!" << endl;
+    }
+    return cmap;
+
+}
 
 int main () {
  //--------------------Open file------------------
 
   string file;
   string word;
-  cout << "Please enter a path to file with words: ";
+  cout << "Please enter a path to configuration file: ";
   cin >> file;
+  //file = "/home/roksoliana/config.txt";
+  map<string, string> cmap = configm(file);
+  string filewithwords = cmap["filewithwords"];
+  string writeByWords = cmap["writeByWords"];
+  string writeByNumber = cmap["writeByNumber"];
+  int numOfthreads = stoi(cmap["numOfthreads"]);
   auto open_start_time = get_current_time_fenced();
-  ifstream myfile(file);
+  ifstream myfile(filewithwords);
 
   vector<string> vector1 = {};
 
@@ -83,14 +113,11 @@ int main () {
 
   //--------Threads---------------------
 
-  int numOfThreads;
-  cout << "Please enter a number of threads: ";
-  cin >> numOfThreads;
 
-  thread threads[numOfThreads];
+  thread threads[numOfthreads];
 
-  int part = int(vector1.size()/numOfThreads);
-     if (vector1.size()%numOfThreads != 0){
+  int part = int(vector1.size()/numOfthreads);
+     if (vector1.size()%numOfthreads != 0){
         part += 1;
      }
   map<string, int> myMap;
@@ -99,7 +126,7 @@ int main () {
 
   auto counting_start_time = get_current_time_fenced();
 
-  for(int it = 0; it < numOfThreads; it++){
+  for(int it = 0; it < numOfthreads; it++){
       threads[it] = thread(createThread, cref(vector1),start,end,ref(myMap));
       start += part;
       end += part;
@@ -107,17 +134,14 @@ int main () {
   auto counting_end_time = get_current_time_fenced();
   cout << "\nOpening time: "<< to_us(open_end_time-open_start_time) / (double)(1000) << " ms\n" << endl;
   cout << "Counting time: "<< to_us(counting_end_time-counting_start_time) / (double)(1000) << " ms\n" << endl;
-  for(int i = 0; i < numOfThreads; i++){
+  for(int i = 0; i < numOfthreads; i++){
       threads[i].join();
   }
   //===============================
 
   //------------Write to file by word------------------
-  string wrFile1;
-  cout << "Please enter a path to file, where words will be sorted alphabetically: ";
-  cin >> wrFile1;
   ofstream outmyfile;
-  outmyfile.open(wrFile1);
+  outmyfile.open(writeByWords);
   if (outmyfile.is_open()){
   for (auto it = myMap.begin(); it != myMap.end(); ++it)
   {
@@ -125,7 +149,7 @@ int main () {
   }
     outmyfile.close();}
   else{
-      cout << "Enable to open a file" << wrFile1 << endl;
+      cout << "Enable to open a file" << writeByWords << endl;
       return 0;
   }
 
@@ -134,12 +158,9 @@ int main () {
   //-------------Write to file by numbers----------------
 
     vector<pair<string, int> > mapcopy(myMap.begin(), myMap.end());
-    sort(mapcopy.begin(), mapcopy.end(), less_second<string, int>());
-    string wrFile2;
-    cout << "Please enter a path to file, where words will be sorted by number of each word: ";
-    cin >> wrFile2;
+    sort(mapcopy.begin(), mapcopy.end(), less_second<string, int>());;
     ofstream outmyfile2;
-    outmyfile2.open (wrFile2);
+    outmyfile2.open (writeByNumber);
     if (outmyfile2.is_open()){
     for (auto it = mapcopy.begin(); it != mapcopy.end(); ++it)
     {
@@ -150,7 +171,7 @@ int main () {
     cout << "Total time: "<< to_us(total_end_time-open_start_time) / (double)(1000) << " ms\n" << endl;
     }
     else{
-        cout << "Enable to open a file" << wrFile2 << endl;
+        cout << "Enable to open a file" << writeByNumber << endl;
         return 0;
     }
 
